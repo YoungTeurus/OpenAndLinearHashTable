@@ -2,7 +2,9 @@ package Implemitations;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,6 +95,37 @@ class ChainedHashTableTest {
         assertNull(testHashTable.get(randInt_4));
         assertEquals(string_2, testHashTable.get(randInt_5));
         assertEquals(string_3, testHashTable.get(randInt_6));
+    }
+
+    @Test
+    void bigRemove(){
+        int itemsToCreate = 100000;
+        int itemsToDelete = 25000;
+
+        ChainedHashTable<Integer, String> testHashTable = new ChainedHashTable<Integer, String>();
+
+
+        Set<Integer> indexesToRemove = new HashSet<Integer>();
+        for(int i = 0; i < itemsToDelete; i++){
+            indexesToRemove.add(Math.abs(random.nextInt()) % itemsToCreate);
+        }
+
+        // Добавляем элементы:
+        for (int i = 0; i < itemsToCreate; i++) {
+            testHashTable.insert(i, "abc" + i);
+        }
+        // Удаляем элементы:
+        for (int itemToRemove : indexesToRemove) {
+            testHashTable.remove(itemToRemove);
+        }
+        // Пытаемся проверить элементы:
+        for (int i = 0; i < itemsToCreate; i++) {
+            if(indexesToRemove.contains(i)){
+                assertNull(testHashTable.get(i));
+            } else {
+                assertEquals("abc"+i, testHashTable.get(i));
+            }
+        }
     }
 
     @Test
