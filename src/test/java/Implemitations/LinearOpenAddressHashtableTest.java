@@ -6,13 +6,13 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class OpenAddressHashtableTest {
+class LinearOpenAddressHashtableTest {
 
     final Random random = new Random();
 
     @Test
     void insertAndGet() {
-        OpenAddressHashtable<Integer, String> testHashTable = new OpenAddressHashtable<Integer, String>();
+        LinearOpenAddressHashtable<Integer, String> testHashTable = new LinearOpenAddressHashtable<Integer, String>();
 
         // Простая запись:
         int randInt_1 = random.nextInt(),

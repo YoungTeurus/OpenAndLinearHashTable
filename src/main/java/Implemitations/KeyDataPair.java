@@ -18,4 +18,8 @@ public class KeyDataPair<Key, Data> implements IKeyDataPair<Key, Data> {
     public Data getData() {
         return _data;
     }
+
+    public boolean isKeyEqualsTo(Key other) {
+        return _key.equals(other);
+    }
 }

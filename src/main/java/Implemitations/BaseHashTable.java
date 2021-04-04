@@ -7,8 +7,6 @@ import java.lang.reflect.Array;
 
 public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> {
     public static int DEFAULT_SIZE = 37;
-    protected static int CANT_INSERT_OR_FIND = -1;
-
     private IKeyDataPair<Key, Data>[] _hashTable;
     protected int _size;
 
@@ -25,27 +23,41 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
         _hashTable = createNewArray(_size);
     }
 
-    public void insert(Key key, Data data){
+    private IKeyDataPair<Key, Data>[] createNewArray(int size){
+        // TODO: Опасное (?) приведение типов
+        return (IKeyDataPair<Key, Data>[]) Array.newInstance(IKeyDataPair.class, size);
+    }
+
+    public void insert(Key key, Data data) {
         insert(new KeyDataPair<Key, Data>(key, data));
     }
 
-    // Паттерн "Шаблонный метод": субкласс должен переопределить, как находить новый индекс элемента при коллизии.
-    public void insert(IKeyDataPair<Key, Data> keyDataPair){
+    // Паттерн "Шаблонный метод": субкласс должен переопределить, как вставлять новый элемент в хеш-таблицу.
+    public void insert(IKeyDataPair<Key, Data> keyDataPair) {
         Key keyOfPair = keyDataPair.getKey();
         int indexInHashTable = getNormalizedInSizeHashcodeOfKey(keyOfPair);
 
-        Integer startIndex = indexInHashTable;
+        placePairIntoHashTable(keyOfPair, indexInHashTable, keyDataPair);
+    }
 
-        while(!isFreeOrSameKeyPlace(keyOfPair, indexInHashTable)){
-            indexInHashTable = getNextIndex(keyOfPair, indexInHashTable);
+    // Метод должен вставлять элемент keyDataPair c ключём key на место indexInHashTable в _hashTable.
+    protected abstract void placePairIntoHashTable(Key key, Integer indexInHashTable, IKeyDataPair<Key, Data> keyDataPair);
 
-            if (startIndex.equals(indexInHashTable)){
-                // TODO: Если мы вернулись в начальную позицию, настала необходимость расширить хеш-таблицу
-                return;
-            }
-        }
+    protected void setPairIntoHashTable(int index, Object object){
+        _hashTable[index] = object;
+    }
 
-        _hashTable[indexInHashTable] = keyDataPair;
+    // TODO: следующие три метода, возможно, должны переопределяться в
+    protected boolean isFreeOrSameKeyPlace(Key key, int indexInHashTable){
+        return isPlaceEmpty(indexInHashTable) || isPlaceContainsSameKey(key, indexInHashTable);
+    }
+
+    protected boolean isPlaceEmpty(int index){
+        return _hashTable[index] == null;
+    }
+
+    protected boolean isPlaceContainsSameKey(Key key, int index){
+        return _hashTable[index].isKeyEqualsTo(key);
     }
 
     private int getNormalizedInSizeHashcodeOfKey(Key key){
@@ -60,20 +72,7 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
         return Math.abs(object.hashCode());
     }
 
-    private boolean isFreeOrSameKeyPlace(Key key, int indexInHashTable){
-        return isPlaceEmpty(indexInHashTable) || isPlaceContainsSameKey(key, indexInHashTable);
-    }
-
-    private boolean isPlaceEmpty(int index){
-        return _hashTable[index] == null;
-    }
-
-    private boolean isPlaceContainsSameKey(Key key, int index){
-        return _hashTable[index].getKey().equals(key);
-    }
-
-    // Паттерн "Шаблонный метод": субкласс должен переопределить, как находить новый индекс элемента при коллизии.
-    public Data get(Key key){
+    public Data get(Key key) {
         IKeyDataPair<Key, Data> pair = getPair(key);
         if (pair != null){
             return pair.getData();
@@ -81,51 +80,9 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
         return null;
     }
 
-    private IKeyDataPair<Key, Data> getPair(Key key){
-        int indexInHashTable = getNormalizedInSizeHashcodeOfKey(key);
+    protected abstract IKeyDataPair<Key, Data> getPair(Key key);
 
-        Integer startIndex = indexInHashTable;
+    public abstract void remove(Key key);
 
-        while(!isPlaceEmpty(indexInHashTable)){
-            if(isPlaceContainsSameKey(key, indexInHashTable)){
-                return _hashTable[indexInHashTable];
-            }
-            indexInHashTable = getNextIndex(key, indexInHashTable);
-
-            if (startIndex.equals(indexInHashTable)){
-                break;
-            }
-        }
-        return null;
-    }
-
-    // Метод должен возвращать следующий индекс для ключа key, как если бы произошла коллизия на месте collisionIndex.
-    protected abstract int getNextIndex(Key key, int collisionIndex);
-
-    protected int getNormalizedInSizeIndex(int index){
-        return index % _size;
-    }
-
-    public void remove(Key key) {
-        // TODO: реализовать!
-    }
-
-    public IHashTable<Key, Data> rehash(int size){
-        // TODO: реализовать! Подумать, как возварщать (или хотя бы создавать) хеш-таблицу нужного типа
-        // IHashTable<Key, Data> newHashTable;
-        // IKeyDataPair<Key, Data>[] newHashTable = createNewArray(size);
-        // for (IKeyDataPair<Key, Data> keyDataPair: _hashTable){
-        //     int newIndexInHashTable = getHashcodeOfKey(keyDataPair);
-        //     newHashTable[newIndexInHashTable] = keyDataPair;
-
-        //     // onCollision...
-        //     // Проще возвращать новую HashTable?
-        // }
-        return null;
-    }
-
-    private IKeyDataPair<Key, Data>[] createNewArray(int size){
-        // TODO: Опасное (?) приведение типов
-        return (IKeyDataPair<Key, Data>[])Array.newInstance(IKeyDataPair.class, DEFAULT_SIZE);
-    }
+    public abstract IHashTable<Key, Data> rehash(int size);
 }
