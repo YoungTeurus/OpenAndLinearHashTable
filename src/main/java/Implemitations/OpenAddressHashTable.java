@@ -4,6 +4,8 @@ import Interfaces.IHashTable;
 import Interfaces.IKeyDataPair;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.lang.reflect.Array;
+
 public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key, Data> {
 
     public OpenAddressHashTable(){
@@ -12,6 +14,11 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
     public OpenAddressHashTable(int size){
         super(size);
+    }
+
+    @Override
+    final protected Object[] createNewArray(int size) {
+        return (Object[]) Array.newInstance(IKeyDataPair.class, size);
     }
 
     // Паттерн "Шаблонный метод": субкласс должен переопределить, как находить новый индекс элемента при коллизии.
@@ -31,16 +38,19 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         setPairIntoHashTable(currentIndex, keyDataPair);
     }
 
-    // Паттерн "Шаблонный метод": субкласс должен переопределить, как находить новый индекс элемента при коллизии.
-    public Data get(Key key){
-        IKeyDataPair<Key, Data> pair = getPair(key);
-        if (pair != null){
-            return pair.getData();
-        }
-        return null;
+    private boolean isFreeOrSameKeyPlace(Key key, int indexInHashTable){
+        return isPlaceEmpty(indexInHashTable) || isPlaceContainsSameKey(key, indexInHashTable);
     }
 
-    private IKeyDataPair<Key, Data> getPair(Key key){
+    private boolean isPlaceEmpty(int index){
+        return getHashTableElementAt(index) == null;
+    }
+
+    private boolean isPlaceContainsSameKey(Key key, int index){
+        return getHashTableElementOfCorrectTypeAt(index).isKeyEqualsTo(key);
+    }
+
+    protected IKeyDataPair<Key, Data> getPair(Key key){
         int indexInHashTable = getNormalizedInSizeHashcodeOfKey(key);
 
         Integer startIndex = indexInHashTable;
@@ -48,7 +58,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
         while(!isPlaceEmpty(indexInHashTable)){
             if(isPlaceContainsSameKey(key, indexInHashTable)){
-                return _hashTable[indexInHashTable];
+                return getHashTableElementOfCorrectTypeAt(indexInHashTable);
             }
             indexInHashTable = getNextIndex(key, indexInHashTable, wrongNextIndexTries);
 
@@ -64,7 +74,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
     // Передача tryCount позволяет
     protected abstract int getNextIndex(Key key, int collisionIndex, int tryCount);
 
-    protected int getNormalizedInSizeIndex(int index){
+    final protected int getNormalizedInSizeIndex(int index){
         return index % _size;
     }
 
@@ -85,5 +95,9 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         //     // Проще возвращать новую HashTable?
         // }
         return null;
+    }
+
+    private IKeyDataPair<Key, Data> getHashTableElementOfCorrectTypeAt(int index){
+        return (IKeyDataPair<Key, Data>)getHashTableElementAt(index);
     }
 }
