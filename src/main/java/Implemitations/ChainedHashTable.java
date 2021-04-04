@@ -1,8 +1,6 @@
 package Implemitations;
 
-import Interfaces.IHashTable;
 import Interfaces.IKeyDataPair;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -83,6 +81,7 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
     }
 
     private void iterateThroughOldHashTableAndPopulateNew(ChainedHashTable<Key, Data> newHashTable){
+        //noinspection unchecked
         for (ArrayList<IKeyDataPair<Key, Data>> keyDataPairList : (ArrayList<IKeyDataPair<Key, Data>>[])getHashTable()) {
             iterateThroughListOfPairsAndPopulateHashtable(keyDataPairList, newHashTable);
         }
@@ -97,6 +96,7 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
     }
 
     private ArrayList<IKeyDataPair<Key, Data>>[] getHashTableOfCorrectType(){
+        //noinspection unchecked
         return (ArrayList<IKeyDataPair<Key, Data>>[])getHashTable();
     }
 }

@@ -1,6 +1,5 @@
 package Implemitations;
 
-import Interfaces.IHashTable;
 import Interfaces.IKeyDataPair;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -33,8 +32,8 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         while(!isFreeOrSameKeyPlace(key, currentIndex)){
             currentIndex = getNextIndex(key, currentIndex, wrongNextIndexTries);
 
+            // TODO: Если мы вернулись в начальную позицию, настала необходимость расширить хеш-таблицу?
             if (indexInHashTable.equals(currentIndex)){
-                // TODO: Если мы вернулись в начальную позицию, настала необходимость расширить хеш-таблицу
                 return;
             }
         }
@@ -105,12 +104,14 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
     protected abstract OpenAddressHashTable<Key, Data> createNewHashTable(int size);
 
     private void iterateThroughOldHashTableAndPopulateNew(OpenAddressHashTable<Key, Data> newHashTable){
+        //noinspection unchecked
         for (IKeyDataPair<Key, Data> keyDataPair : (IKeyDataPair<Key, Data>[])getHashTable()) {
             newHashTable.insert(keyDataPair);
         }
     }
 
     private IKeyDataPair<Key, Data> getHashTableElementOfCorrectTypeAt(int index){
+        //noinspection unchecked
         return (IKeyDataPair<Key, Data>)getHashTableElementAt(index);
     }
 }
