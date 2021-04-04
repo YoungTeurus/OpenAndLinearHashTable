@@ -1,12 +1,12 @@
 package Implemitations;
 
 import Interfaces.IKeyDataPair;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.lang.reflect.Array;
 
 public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key, Data> {
-    int sizeUsed;
+    private int sizeUsed;
+    private int lastTryCount;
 
     public OpenAddressHashTable(){
         super();
@@ -65,12 +65,15 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
         Integer startIndex = indexInHashTable;
         int wrongNextIndexTries = 0;
+        setLastTryCount(wrongNextIndexTries);
 
         while(!isPlaceEmpty(indexInHashTable)){
             if(isPlaceContainsSameKey(key, indexInHashTable)){
                 return getHashTableElementOfCorrectTypeAt(indexInHashTable);
             }
-            indexInHashTable = getNextIndex(key, indexInHashTable, wrongNextIndexTries);
+
+            indexInHashTable = getNextIndex(key, indexInHashTable, wrongNextIndexTries++);
+            setLastTryCount(wrongNextIndexTries);
 
             if (startIndex.equals(indexInHashTable)){
                 break;
@@ -88,9 +91,65 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         return index % _size;
     }
 
+    protected void setLastTryCount(int _lastTryCount){
+        lastTryCount = _lastTryCount;
+    }
+
+    protected int getLastTryCount(){
+        return lastTryCount;
+    }
+
     @Override
     public void remove(Key key) {
-        throw new NotImplementedException();
+        IKeyDataPair<Key, Data> keyDataPairToRemove = getPair(key);
+        if(keyDataPairToRemove != null){
+            removePairAndCorrectAllNextKeyDataPairsWithSameHash(keyDataPairToRemove);
+        }
+    }
+
+    private void removePairAndCorrectAllNextKeyDataPairsWithSameHash(IKeyDataPair<Key, Data> keyDataPairToRemove){
+        Key keyOfPairToRemove = keyDataPairToRemove.getKey();
+        int hashcodeOfKeyOfPairToRemove = getHashcodeOf(keyOfPairToRemove);
+        int indexOfPairToRemove = getNormalizedInSizeIndex(hashcodeOfKeyOfPairToRemove);
+
+        removePairFromHashTable(indexOfPairToRemove);
+        correctAllNextKeyDataPairsWithSameHash(keyOfPairToRemove, hashcodeOfKeyOfPairToRemove, indexOfPairToRemove);
+    }
+
+    private void removePairFromHashTable(int index){
+        setPairIntoHashTable(index, null);
+        sizeUsed--;
+    }
+
+    private void correctAllNextKeyDataPairsWithSameHash(Key keyOfRemovedPair, int hashcodeOfKeyOfRemovedPair,
+                                                        int indexOfRemovedPair){
+        int normalisedInSizeHashOfRemovedPair = getNormalizedInSizeIndex(hashcodeOfKeyOfRemovedPair);
+        int lastPairIndex = indexOfRemovedPair;
+        int nextPairIndex = getNextIndex(keyOfRemovedPair, indexOfRemovedPair, getLastTryCount());
+
+        while(!isPlaceEmpty(nextPairIndex)) {
+            IKeyDataPair<Key, Data> currentPair = getHashTableElementOfCorrectTypeAt(nextPairIndex);
+            if(isNormalisedHashOfKeyOfPairEquals(currentPair, normalisedInSizeHashOfRemovedPair)){
+                movePairToNewIndex(currentPair, nextPairIndex, lastPairIndex);
+
+                lastPairIndex = nextPairIndex;
+                setLastTryCount(getLastTryCount() + 1);
+                nextPairIndex = getNextIndex(keyOfRemovedPair, lastPairIndex, getLastTryCount());
+            } else {
+                break;
+            }
+        }
+    }
+
+    private void movePairToNewIndex(IKeyDataPair<Key, Data> pair, int currentIndex, int newIndex){
+        setPairIntoHashTable(newIndex, pair);
+        setPairIntoHashTable(currentIndex, null);
+    }
+
+    private boolean isNormalisedHashOfKeyOfPairEquals(IKeyDataPair<Key, Data> pair, Integer expectedHash){
+        Key keyOfPair = pair.getKey();
+        int normalizedInSizeHashOfKey = getNormalizedInSizeHashcodeOfKey(keyOfPair);
+        return expectedHash.equals(normalizedInSizeHashOfKey);
     }
 
     @Override

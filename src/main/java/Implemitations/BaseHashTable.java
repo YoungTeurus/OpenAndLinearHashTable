@@ -63,7 +63,7 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
             return;
         }
         _hashTable = createNewHashTableFromCurrentWithNewSize(_hashTable, newSize);
-        _size = newSize;
+        _size = _hashTable.length;
     }
 
     // Метод должен возвращать новый массив _hashTable, заполненный элементами из старой _hashTable.
