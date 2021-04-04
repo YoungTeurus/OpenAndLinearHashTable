@@ -7,13 +7,16 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.lang.reflect.Array;
 
 public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key, Data> {
+    int sizeUsed;
 
     public OpenAddressHashTable(){
         super();
+        sizeUsed = 0;
     }
 
     public OpenAddressHashTable(int size){
         super(size);
+        sizeUsed = 0;
     }
 
     @Override
@@ -36,6 +39,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
             }
         }
         setPairIntoHashTable(currentIndex, keyDataPair);
+        increaseSizeUsedAndRehashIfNeeded();
     }
 
     private boolean isFreeOrSameKeyPlace(Key key, int indexInHashTable){
@@ -48,6 +52,13 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
     private boolean isPlaceContainsSameKey(Key key, int index){
         return getHashTableElementOfCorrectTypeAt(index).isKeyEqualsTo(key);
+    }
+
+    private void increaseSizeUsedAndRehashIfNeeded(){
+        sizeUsed++;
+        if (sizeUsed > (float)2/3*_size){
+            rehash(_size * 2);
+        }
     }
 
     protected IKeyDataPair<Key, Data> getPair(Key key){
@@ -83,18 +94,20 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         throw new NotImplementedException();
     }
 
-    public IHashTable<Key, Data> rehash(int size){
-        // TODO: реализовать! Подумать, как возварщать (или хотя бы создавать) хеш-таблицу нужного типа
-        // IHashTable<Key, Data> newHashTable;
-        // IKeyDataPair<Key, Data>[] newHashTable = createNewArray(size);
-        // for (IKeyDataPair<Key, Data> keyDataPair: _hashTable){
-        //     int newIndexInHashTable = getHashcodeOfKey(keyDataPair);
-        //     newHashTable[newIndexInHashTable] = keyDataPair;
+    @Override
+    protected final Object[] createNewHashTableFromCurrentWithNewSize(Object[] currentHashTable, int newSize) {
+        OpenAddressHashTable<Key, Data> newHashTable = createNewHashTable(newSize);
+        iterateThroughOldHashTableAndPopulateNew(newHashTable);
+        return newHashTable.getHashTable();
+    }
 
-        //     // onCollision...
-        //     // Проще возвращать новую HashTable?
-        // }
-        return null;
+    // Метод должен возвращать новый экземпляр хеш-таблицы типа субкласса, приведённого к данному классу.
+    protected abstract OpenAddressHashTable<Key, Data> createNewHashTable(int size);
+
+    private void iterateThroughOldHashTableAndPopulateNew(OpenAddressHashTable<Key, Data> newHashTable){
+        for (IKeyDataPair<Key, Data> keyDataPair : (IKeyDataPair<Key, Data>[])getHashTable()) {
+            newHashTable.insert(keyDataPair);
+        }
     }
 
     private IKeyDataPair<Key, Data> getHashTableElementOfCorrectTypeAt(int index){

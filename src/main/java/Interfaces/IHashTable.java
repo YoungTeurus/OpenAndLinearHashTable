@@ -7,6 +7,4 @@ public interface IHashTable<Key, Data> {
     Data get(Key key);
 
     void remove(Key key);
-
-    IHashTable<Key, Data> rehash(int size);
 }

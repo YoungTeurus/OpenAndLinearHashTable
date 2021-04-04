@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class SpeedTest {
     @Test
     void speedTest(){
-        LinearOpenAddressHashtable<String, Integer> linearHashTable = new LinearOpenAddressHashtable<String, Integer>(150000);
-        ChainedHashTable<String, Integer> chainedHashTable = new ChainedHashTable<String, Integer>(1024);
-        HashMap<String, Integer> standartHashTable = new HashMap<String, Integer>(150000);
+        LinearOpenAddressHashtable<String, Integer> linearHashTable = new LinearOpenAddressHashtable<String, Integer>();
+        ChainedHashTable<String, Integer> chainedHashTable = new ChainedHashTable<String, Integer>();
+        HashMap<String, Integer> standartHashTable = new HashMap<String, Integer>();
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < 100000; i++){

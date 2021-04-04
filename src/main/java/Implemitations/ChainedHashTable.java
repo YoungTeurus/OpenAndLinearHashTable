@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
+    static float CRITICAL_USED_SIZE_TO_SIZE_RATIO_TO_REHASH = (float)1/5;
+
     ChainedHashTable(){
         super();
     }
@@ -25,12 +27,20 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
     @Override
     protected void placePairIntoHashTable(Key key, Integer indexInHashTable, IKeyDataPair<Key, Data> keyDataPair) {
         ArrayList<IKeyDataPair<Key, Data>>[] hashTable = getHashTableOfCorrectType();
-        if(hashTable[indexInHashTable] == null){
+        ArrayList<IKeyDataPair<Key, Data>> currentKeyDataList = hashTable[indexInHashTable];
+        if(currentKeyDataList == null){
             ArrayList<IKeyDataPair<Key, Data>> newArrayList = new ArrayList<IKeyDataPair<Key, Data>>();
             newArrayList.add(keyDataPair);
             setPairIntoHashTable(indexInHashTable, newArrayList);
         } else {
-            hashTable[indexInHashTable].add(keyDataPair);
+            currentKeyDataList.add(keyDataPair);
+            checkListUsedLengthAndRehashIfNeeded(currentKeyDataList);
+        }
+    }
+
+    private void checkListUsedLengthAndRehashIfNeeded(ArrayList<IKeyDataPair<Key, Data>> keyDataList){
+        if (keyDataList.size() > CRITICAL_USED_SIZE_TO_SIZE_RATIO_TO_REHASH * _size){
+            rehash(_size * 2);
         }
     }
 
@@ -66,8 +76,24 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
         }
     }
 
-    public IHashTable<Key, Data> rehash(int size) {
-        throw new NotImplementedException();
+    protected final Object[] createNewHashTableFromCurrentWithNewSize(Object[] currentHashTable, int newSize) {
+        ChainedHashTable<Key, Data> newHashTable = new ChainedHashTable<Key, Data>(newSize);
+        iterateThroughOldHashTableAndPopulateNew(newHashTable);
+        return newHashTable.getHashTable();
+    }
+
+    private void iterateThroughOldHashTableAndPopulateNew(ChainedHashTable<Key, Data> newHashTable){
+        for (ArrayList<IKeyDataPair<Key, Data>> keyDataPairList : (ArrayList<IKeyDataPair<Key, Data>>[])getHashTable()) {
+            iterateThroughListOfPairsAndPopulateHashtable(keyDataPairList, newHashTable);
+        }
+    }
+
+    private void iterateThroughListOfPairsAndPopulateHashtable(ArrayList<IKeyDataPair<Key, Data>> keyDataPairList, ChainedHashTable<Key, Data> newHashTable){
+        if(keyDataPairList != null){
+            for(IKeyDataPair<Key, Data> keyDataPair : keyDataPairList){
+                newHashTable.insert(keyDataPair);
+            }
+        }
     }
 
     private ArrayList<IKeyDataPair<Key, Data>>[] getHashTableOfCorrectType(){

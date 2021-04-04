@@ -3,8 +3,6 @@ package Implemitations;
 import Interfaces.IHashTable;
 import Interfaces.IKeyDataPair;
 
-import java.lang.reflect.Array;
-
 public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> {
     public static int DEFAULT_SIZE = 37;
     private Object[] _hashTable;  // Это может быть либо массив списков, либо массив пар элементов: зависит от субкласса.
@@ -32,6 +30,9 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
 
     // Паттерн "Шаблонный метод": субкласс должен переопределить, как вставлять новый элемент в хеш-таблицу.
     public void insert(IKeyDataPair<Key, Data> keyDataPair) {
+        if (keyDataPair == null){
+            return;
+        }
         Key keyOfPair = keyDataPair.getKey();
         int indexInHashTable = getNormalizedInSizeHashcodeOfKey(keyOfPair);
 
@@ -41,8 +42,7 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
     // Метод должен вставлять элемент keyDataPair c ключём key на место indexInHashTable в _hashTable.
     protected abstract void placePairIntoHashTable(Key key, Integer indexInHashTable, IKeyDataPair<Key, Data> keyDataPair);
 
-    // Паттерн "Шаблонный метод": субкласс должен переопределить,
-    // как находить новый индекс элемента при коллизии (метод getPair).
+    // Паттерн "Шаблонный метод": субкласс должен переопределить, как находить новый индекс элемента при коллизии (метод getPair).
     final public Data get(Key key) {
         IKeyDataPair<Key, Data> pair = getPair(key);
         if (pair != null){
@@ -57,9 +57,17 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
     // Метод должен удалять из хеш-таблицы элемент, соответствующий ключу key.
     public abstract void remove(Key key);
 
-    // TODO: подумать насчёт целесобразности работы данного метода.
-    // Метод должен расширять исходную хеш-таблицу, возвращая новую хеш-таблицу.
-    public abstract IHashTable<Key, Data> rehash(int size);
+    // Субклассы самостоятельно принимают решения о расширении хеш-таблицы!
+    final protected void rehash(int newSize){
+        if(newSize <= _size){
+            return;
+        }
+        _hashTable = createNewHashTableFromCurrentWithNewSize(_hashTable, newSize);
+        _size = newSize;
+    }
+
+    // Метод должен возвращать новый массив _hashTable, заполненный элементами из старой _hashTable.
+    protected abstract Object[] createNewHashTableFromCurrentWithNewSize(Object[] currentHashTable, int newSize);
 
     // Вспомогательные методы для субклассов:
     protected int getNormalizedInSizeHashcodeOfKey(Key key){
