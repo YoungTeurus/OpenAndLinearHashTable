@@ -5,6 +5,17 @@ import Interfaces.IKeyDataPair;
 import java.lang.reflect.Array;
 
 public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key, Data> {
+    private class KeyDataPairIndexCombo{
+        IKeyDataPair<Key, Data> keyDataPair;
+        int indexOfPair;
+
+        KeyDataPairIndexCombo(){
+            keyDataPair = null;
+            indexOfPair = 0;
+        }
+    }
+
+
     private int sizeUsed;
     private int lastTryCount;
 
@@ -61,25 +72,35 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
     }
 
     protected IKeyDataPair<Key, Data> getPair(Key key){
+        KeyDataPairIndexCombo pairIndexCombo = getPairAndItsIndex(key);
+        return pairIndexCombo.keyDataPair;
+    }
+
+    private KeyDataPairIndexCombo getPairAndItsIndex(Key key){
+        KeyDataPairIndexCombo pairIndexCombo = new KeyDataPairIndexCombo();
+
         int indexInHashTable = getNormalizedInSizeHashcodeOfKey(key);
 
         Integer startIndex = indexInHashTable;
         int wrongNextIndexTries = 0;
         setLastTryCount(wrongNextIndexTries);
 
-        while(!isPlaceEmpty(indexInHashTable)){
-            if(isPlaceContainsSameKey(key, indexInHashTable)){
-                return getHashTableElementOfCorrectTypeAt(indexInHashTable);
+        while(!isPlaceEmpty(indexInHashTable)) {
+            if (isPlaceContainsSameKey(key, indexInHashTable)) {
+                pairIndexCombo.keyDataPair = getHashTableElementOfCorrectTypeAt(indexInHashTable);
+                pairIndexCombo.indexOfPair = indexInHashTable;
+                break;
             }
 
             indexInHashTable = getNextIndex(key, indexInHashTable, wrongNextIndexTries++);
             setLastTryCount(wrongNextIndexTries);
 
-            if (startIndex.equals(indexInHashTable)){
+            if (startIndex.equals(indexInHashTable)) {
                 break;
             }
         }
-        return null;
+
+        return pairIndexCombo;
     }
 
     // Метод должен возвращать следующий индекс для ключа key, как если бы произошла коллизия на месте collisionIndex и

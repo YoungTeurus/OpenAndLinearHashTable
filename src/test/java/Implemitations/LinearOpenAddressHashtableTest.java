@@ -95,10 +95,11 @@ class LinearOpenAddressHashtableTest {
 
         testHashTable.insert(20, "20");
         testHashTable.insert(10, "10");
-        testHashTable.remove(20);
+        testHashTable.insert(30, "30");
+        testHashTable.remove(10);
 
-        assertNull(testHashTable.get(20));
-        assertEquals("10", testHashTable.get(10));
+        assertNull(testHashTable.get(10));
+        assertEquals("20", testHashTable.get(20));
     }
 
     @Test
