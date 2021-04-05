@@ -27,13 +27,21 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
         ArrayList<IKeyDataPair<Key, Data>>[] hashTable = getHashTableOfCorrectType();
         ArrayList<IKeyDataPair<Key, Data>> currentKeyDataList = hashTable[indexInHashTable];
         if(currentKeyDataList == null){
-            ArrayList<IKeyDataPair<Key, Data>> newArrayList = new ArrayList<IKeyDataPair<Key, Data>>();
-            newArrayList.add(keyDataPair);
-            setPairIntoHashTable(indexInHashTable, newArrayList);
+            createNewArrayListAtIndexAndPlacePairIntoIt(indexInHashTable, keyDataPair);
         } else {
-            currentKeyDataList.add(keyDataPair);
-            checkListUsedLengthAndRehashIfNeeded(currentKeyDataList);
+            appendPairIntoListAndRehashIfNeeded(currentKeyDataList, keyDataPair);
         }
+    }
+
+    private void createNewArrayListAtIndexAndPlacePairIntoIt(Integer indexInHashTable, IKeyDataPair<Key, Data> keyDataPair){
+        ArrayList<IKeyDataPair<Key, Data>> newArrayList = new ArrayList<IKeyDataPair<Key, Data>>();
+        newArrayList.add(keyDataPair);
+        setPairIntoHashTable(indexInHashTable, newArrayList);
+    }
+
+    private void appendPairIntoListAndRehashIfNeeded(ArrayList<IKeyDataPair<Key, Data>> keyDataList, IKeyDataPair<Key, Data> keyDataPair){
+        keyDataList.add(keyDataPair);
+        checkListUsedLengthAndRehashIfNeeded(keyDataList);
     }
 
     private void checkListUsedLengthAndRehashIfNeeded(ArrayList<IKeyDataPair<Key, Data>> keyDataList){
@@ -46,9 +54,14 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
     protected IKeyDataPair<Key, Data> getPair(Key key) {
         ArrayList<IKeyDataPair<Key, Data>>[] hashTable = getHashTableOfCorrectType();
         int indexInHashTable = getNormalizedInSizeHashcodeOfKey(key);
+        ArrayList<IKeyDataPair<Key, Data>> pairListToIterate = hashTable[indexInHashTable];
 
-        if(hashTable[indexInHashTable] != null){
-            for (IKeyDataPair<Key, Data> keyDataPair : hashTable[indexInHashTable]) {
+        return iterateThroughPairListAndReturnPairWithKeyEqualsTo(pairListToIterate, key);
+    }
+
+    private IKeyDataPair<Key, Data> iterateThroughPairListAndReturnPairWithKeyEqualsTo(ArrayList<IKeyDataPair<Key, Data>> pairList, Key key){
+        if(pairList != null){
+            for (IKeyDataPair<Key, Data> keyDataPair : pairList) {
                 if(keyDataPair.isKeyEqualsTo(key)){
                     return keyDataPair;
                 }
@@ -61,9 +74,14 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
     public void remove(Key key) {
         ArrayList<IKeyDataPair<Key, Data>>[] hashTable = getHashTableOfCorrectType();
         int indexInHashTable = getNormalizedInSizeHashcodeOfKey(key);
+        ArrayList<IKeyDataPair<Key, Data>> pairListWithItemToRemove = hashTable[indexInHashTable];
 
-        if(hashTable[indexInHashTable] != null){
-            Iterator<IKeyDataPair<Key, Data>> it = hashTable[indexInHashTable].iterator();
+        iterateThroughPairListAndRemovePairWithKeyEqualsTo(pairListWithItemToRemove, key);
+    }
+
+    private void iterateThroughPairListAndRemovePairWithKeyEqualsTo(ArrayList<IKeyDataPair<Key, Data>> pairList, Key key){
+        if(pairList != null){
+            Iterator<IKeyDataPair<Key, Data>> it = pairList.iterator();
             while(it.hasNext()){
                 IKeyDataPair<Key, Data> currentPair = it.next();
                 if (currentPair.isKeyEqualsTo(key)){

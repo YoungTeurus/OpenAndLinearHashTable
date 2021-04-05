@@ -57,7 +57,7 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
     // Метод должен удалять из хеш-таблицы элемент, соответствующий ключу key.
     public abstract void remove(Key key);
 
-    // Субклассы самостоятельно принимают решения о расширении хеш-таблицы!
+    // Субклассы самостоятельно принимают решение о расширении хеш-таблицы!
     final protected void rehash(int newSize){
         if(newSize <= _size){
             return;
