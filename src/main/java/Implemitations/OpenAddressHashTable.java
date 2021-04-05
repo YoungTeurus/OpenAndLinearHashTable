@@ -41,7 +41,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         resetLastTryCount();
 
         while(!isFreeOrSameKeyPlace(key, currentIndex)){
-            currentIndex = getNextIndex(key, indexInHashTable, getLastTryCount());
+            currentIndex = getNextIndex(key, indexInHashTable);
             incrementLastTryCount();
 
             // TODO: Если мы вернулись в начальную позицию, настала необходимость расширить хеш-таблицу?
@@ -92,7 +92,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
                 break;
             }
 
-            indexInHashTable = getNextIndex(key, startIndex, getLastTryCount());
+            indexInHashTable = getNextIndex(key, startIndex);
             incrementLastTryCount();
 
             if (startIndex.equals(indexInHashTable)) {
@@ -106,7 +106,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
     // Метод должен возвращать следующий индекс для ключа key, как если бы произошла коллизия на месте collisionIndex и
     // происходит tryCount попытка получить следующий индекс.
     // Передача tryCount позволяет
-    protected abstract int getNextIndex(Key key, int collisionIndex, int tryCount);
+    protected abstract int getNextIndex(Key key, int collisionIndex);
 
     final protected int getNormalizedInSizeIndex(int index){
         return index % _size;
@@ -157,7 +157,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
                                                         int indexOfRemovedPair){
         int normalisedInSizeHashOfRemovedPair = getNormalizedInSizeIndex(hashcodeOfKeyOfRemovedPair);
         int lastPairIndex = indexOfRemovedPair;
-        int nextPairIndex = getNextIndex(keyOfRemovedPair, indexOfRemovedPair, getLastTryCount());
+        int nextPairIndex = getNextIndex(keyOfRemovedPair, indexOfRemovedPair);
 
         while(!isPlaceEmpty(nextPairIndex)) {
             IKeyDataPair<Key, Data> currentPair = getHashTableElementOfCorrectTypeAt(nextPairIndex);
@@ -166,7 +166,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
                 lastPairIndex = nextPairIndex;
                 incrementLastTryCount();
-                nextPairIndex = getNextIndex(keyOfRemovedPair, lastPairIndex, getLastTryCount());
+                nextPairIndex = getNextIndex(keyOfRemovedPair, lastPairIndex);
             } else {
                 break;
             }
