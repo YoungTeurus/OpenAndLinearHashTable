@@ -122,16 +122,19 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
     @Override
     public void remove(Key key) {
-        IKeyDataPair<Key, Data> keyDataPairToRemove = getPair(key);
+        KeyDataPairIndexCombo keyDataPairToRemoveIndexCombo = getPairAndItsIndex(key);
+
+        IKeyDataPair<Key, Data> keyDataPairToRemove = keyDataPairToRemoveIndexCombo.keyDataPair;
+        int indexOfPairToRemove = keyDataPairToRemoveIndexCombo.indexOfPair;
+
         if(keyDataPairToRemove != null){
-            removePairAndCorrectAllNextKeyDataPairsWithSameHash(keyDataPairToRemove);
+            removePairAndCorrectAllNextKeyDataPairsWithSameHash(keyDataPairToRemove, indexOfPairToRemove);
         }
     }
 
-    private void removePairAndCorrectAllNextKeyDataPairsWithSameHash(IKeyDataPair<Key, Data> keyDataPairToRemove){
+    private void removePairAndCorrectAllNextKeyDataPairsWithSameHash(IKeyDataPair<Key, Data> keyDataPairToRemove, int indexOfPairToRemove){
         Key keyOfPairToRemove = keyDataPairToRemove.getKey();
         int hashcodeOfKeyOfPairToRemove = getHashcodeOf(keyOfPairToRemove);
-        int indexOfPairToRemove = getNormalizedInSizeIndex(hashcodeOfKeyOfPairToRemove);
 
         removePairFromHashTable(indexOfPairToRemove);
         correctAllNextKeyDataPairsWithSameHash(keyOfPairToRemove, hashcodeOfKeyOfPairToRemove, indexOfPairToRemove);
