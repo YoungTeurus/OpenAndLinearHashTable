@@ -38,10 +38,11 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
     @Override
     protected void placePairIntoHashTable(Key key, Integer indexInHashTable, IKeyDataPair<Key, Data> keyDataPair) {
         Integer currentIndex = indexInHashTable;
-        int wrongNextIndexTries = 0;
+        resetLastTryCount();
 
         while(!isFreeOrSameKeyPlace(key, currentIndex)){
-            currentIndex = getNextIndex(key, currentIndex, wrongNextIndexTries);
+            currentIndex = getNextIndex(key, indexInHashTable, getLastTryCount());
+            incrementLastTryCount();
 
             // TODO: Если мы вернулись в начальную позицию, настала необходимость расширить хеш-таблицу?
             if (indexInHashTable.equals(currentIndex)){
@@ -82,8 +83,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         int indexInHashTable = getNormalizedInSizeHashcodeOfKey(key);
 
         Integer startIndex = indexInHashTable;
-        int wrongNextIndexTries = 0;
-        setLastTryCount(wrongNextIndexTries);
+        resetLastTryCount();
 
         while(!isPlaceEmpty(indexInHashTable)) {
             if (isPlaceContainsSameKey(key, indexInHashTable)) {
@@ -92,8 +92,8 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
                 break;
             }
 
-            indexInHashTable = getNextIndex(key, indexInHashTable, wrongNextIndexTries++);
-            setLastTryCount(wrongNextIndexTries);
+            indexInHashTable = getNextIndex(key, startIndex, getLastTryCount());
+            incrementLastTryCount();
 
             if (startIndex.equals(indexInHashTable)) {
                 break;
@@ -118,6 +118,14 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
     protected int getLastTryCount(){
         return lastTryCount;
+    }
+
+    private void resetLastTryCount(){
+        setLastTryCount(0);
+    }
+
+    private void incrementLastTryCount(){
+        lastTryCount++;
     }
 
     @Override
@@ -157,7 +165,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
                 movePairToNewIndex(currentPair, nextPairIndex, lastPairIndex);
 
                 lastPairIndex = nextPairIndex;
-                setLastTryCount(getLastTryCount() + 1);
+                incrementLastTryCount();
                 nextPairIndex = getNextIndex(keyOfRemovedPair, lastPairIndex, getLastTryCount());
             } else {
                 break;

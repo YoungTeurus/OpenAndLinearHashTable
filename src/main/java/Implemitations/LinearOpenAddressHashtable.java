@@ -10,7 +10,7 @@ public class LinearOpenAddressHashtable<Key, Data> extends OpenAddressHashTable<
     }
 
     protected final int getNextIndex(Key key, int collisionIndex, int tryCount) {
-        return getNormalizedInSizeIndex(collisionIndex + 1);
+        return getNormalizedInSizeIndex(collisionIndex + 1 + tryCount);
     }
 
     protected OpenAddressHashTable<Key, Data> createNewHashTable(int size) {
