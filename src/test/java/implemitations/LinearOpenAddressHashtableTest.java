@@ -1,4 +1,4 @@
-package Implemitations;
+package implemitations;
 
 import org.junit.jupiter.api.Test;
 

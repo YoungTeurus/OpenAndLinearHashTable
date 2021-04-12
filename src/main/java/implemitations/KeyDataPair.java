@@ -1,8 +1,6 @@
-package Implemitations;
+package implemitations;
 
-import Interfaces.IKeyDataPair;
-
-public class KeyDataPair<Key, Data> implements IKeyDataPair<Key, Data> {
+public class KeyDataPair<Key, Data> implements interfaces.KeyDataPair<Key, Data> {
     private Key _key;
     private Data _data;
 

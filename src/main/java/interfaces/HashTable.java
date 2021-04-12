@@ -1,6 +1,6 @@
-package Interfaces;
+package interfaces;
 
-public interface IHashTable<Key, Data> {
+public interface HashTable<Key, Data> {
     /**
      * Вставляет новую запись в хеш-таблицу.
      * @param key Ключ записи.
@@ -12,7 +12,7 @@ public interface IHashTable<Key, Data> {
      * Вставляет новую запись в хеш-таблицу.
      * @param keyDataPair Запись для вставки.
      */
-    void insert(IKeyDataPair<Key, Data> keyDataPair);
+    void insert(KeyDataPair<Key, Data> keyDataPair);
 
     /**
      * Производит поиск и получение записи из хеш-таблицы по указанному ключу.

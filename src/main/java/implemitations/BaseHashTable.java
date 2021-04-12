@@ -1,9 +1,9 @@
-package Implemitations;
+package implemitations;
 
-import Interfaces.IHashTable;
-import Interfaces.IKeyDataPair;
+import interfaces.HashTable;
+import interfaces.KeyDataPair;
 
-public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> {
+public abstract class BaseHashTable<Key, Data> implements HashTable<Key, Data> {
     public static int DEFAULT_SIZE = 37;
     private Object[] _hashTable;  // Это может быть либо массив списков, либо массив пар элементов: зависит от субкласса.
     protected int _size;
@@ -25,11 +25,11 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
     protected abstract Object[] createNewArray(int size);
 
     public void insert(Key key, Data data) {
-        insert(new KeyDataPair<Key, Data>(key, data));
+        insert(new implemitations.KeyDataPair(key, data));
     }
 
     // Паттерн "Шаблонный метод": субкласс должен переопределить, как вставлять новый элемент в хеш-таблицу.
-    public void insert(IKeyDataPair<Key, Data> keyDataPair) {
+    public void insert(KeyDataPair<Key, Data> keyDataPair) {
         if (keyDataPair == null){
             return;
         }
@@ -40,11 +40,11 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
     }
 
     // Метод должен вставлять элемент keyDataPair c ключём key на место indexInHashTable в _hashTable.
-    protected abstract void placePairIntoHashTable(Key key, Integer indexInHashTable, IKeyDataPair<Key, Data> keyDataPair);
+    protected abstract void placePairIntoHashTable(Key key, Integer indexInHashTable, KeyDataPair<Key, Data> keyDataPair);
 
     // Паттерн "Шаблонный метод": субкласс должен переопределить, как находить новый индекс элемента при коллизии (метод getPair).
     final public Data get(Key key) {
-        IKeyDataPair<Key, Data> pair = getPairByKey(key);
+        KeyDataPair<Key, Data> pair = getPairByKey(key);
         if (pair != null){
             return pair.getData();
         }
@@ -52,17 +52,17 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
     }
 
     // Метод должен возвращать пару, соответствующую ключу key или null, если такая не была найдена.
-    protected abstract IKeyDataPair<Key, Data> getPairByKey(Key key);
+    protected abstract KeyDataPair<Key, Data> getPairByKey(Key key);
     // Метод должен возвращать пару, содержащую данные data или null, если такая не была найдена.
-    protected abstract IKeyDataPair<Key, Data> getPairByData(Data data);
+    protected abstract KeyDataPair<Key, Data> getPairByData(Data data);
 
     public boolean containsKey(Key key) {
-        IKeyDataPair<Key, Data> pairWithSetKey = getPairByKey(key);
+        KeyDataPair<Key, Data> pairWithSetKey = getPairByKey(key);
         return pairWithSetKey != null;
     }
 
     public boolean containsData(Data data) {
-        IKeyDataPair<Key, Data> pairWithSetData = getPairByData(data);
+        KeyDataPair<Key, Data> pairWithSetData = getPairByData(data);
         return pairWithSetData != null;
     }
 

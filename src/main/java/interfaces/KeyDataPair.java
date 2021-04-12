@@ -1,6 +1,6 @@
-package Interfaces;
+package interfaces;
 
-public interface IKeyDataPair<Key, Data> {
+public interface KeyDataPair<Key, Data> {
     /**
      * Возвращает ключ записи.
      * @return Ключ записи.

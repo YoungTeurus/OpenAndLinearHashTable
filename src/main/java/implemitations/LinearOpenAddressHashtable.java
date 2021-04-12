@@ -1,4 +1,4 @@
-package Implemitations;
+package implemitations;
 
 public class LinearOpenAddressHashtable<Key, Data> extends OpenAddressHashTable<Key, Data> {
     LinearOpenAddressHashtable(){

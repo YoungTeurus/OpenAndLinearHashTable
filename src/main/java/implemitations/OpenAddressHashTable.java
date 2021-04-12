@@ -1,12 +1,12 @@
-package Implemitations;
+package implemitations;
 
-import Interfaces.IKeyDataPair;
+import interfaces.KeyDataPair;
 
 import java.lang.reflect.Array;
 
 public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key, Data> {
     private class KeyDataPairIndexCombo{
-        IKeyDataPair<Key, Data> keyDataPair;
+        KeyDataPair<Key, Data> keyDataPair;
         int indexOfPair;
 
         KeyDataPairIndexCombo(){
@@ -31,12 +31,12 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
     @Override
     final protected Object[] createNewArray(int size) {
-        return (Object[]) Array.newInstance(IKeyDataPair.class, size);
+        return (Object[]) Array.newInstance(KeyDataPair.class, size);
     }
 
     // Паттерн "Шаблонный метод": субкласс должен переопределить, как находить новый индекс элемента при коллизии.
     @Override
-    protected void placePairIntoHashTable(Key key, Integer indexInHashTable, IKeyDataPair<Key, Data> keyDataPair) {
+    protected void placePairIntoHashTable(Key key, Integer indexInHashTable, KeyDataPair<Key, Data> keyDataPair) {
         Integer currentIndex = indexInHashTable;
         resetLastTryCount();
 
@@ -74,7 +74,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         }
     }
 
-    protected IKeyDataPair<Key, Data> getPairByKey(Key key){
+    protected KeyDataPair<Key, Data> getPairByKey(Key key){
         KeyDataPairIndexCombo pairIndexCombo = getPairAndItsIndexByKey(key);
         return pairIndexCombo.keyDataPair;
     }
@@ -106,7 +106,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
     }
 
     @Override
-    protected IKeyDataPair<Key, Data> getPairByData(Data data) {
+    protected KeyDataPair<Key, Data> getPairByData(Data data) {
         KeyDataPairIndexCombo pairIndexCombo = getPairAndItsIndexByData(data);
         return pairIndexCombo.keyDataPair;
     }
@@ -115,7 +115,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         KeyDataPairIndexCombo pairIndexCombo = new KeyDataPairIndexCombo();
 
         for(int index = 0; index < _size; index++){
-            IKeyDataPair<Key, Data> currentPair = getHashTableElementOfCorrectTypeAt(index);
+            KeyDataPair<Key, Data> currentPair = getHashTableElementOfCorrectTypeAt(index);
             if (currentPair != null && currentPair.isDataEqualsTo(data)){
                 pairIndexCombo.keyDataPair = currentPair;
                 pairIndexCombo.indexOfPair = index;
@@ -151,7 +151,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
     public void remove(Key key) {
         KeyDataPairIndexCombo keyDataPairToRemoveIndexCombo = getPairAndItsIndexByKey(key);
 
-        IKeyDataPair<Key, Data> keyDataPairToRemove = keyDataPairToRemoveIndexCombo.keyDataPair;
+        KeyDataPair<Key, Data> keyDataPairToRemove = keyDataPairToRemoveIndexCombo.keyDataPair;
         int indexOfPairToRemove = keyDataPairToRemoveIndexCombo.indexOfPair;
 
         if(keyDataPairToRemove != null){
@@ -159,7 +159,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         }
     }
 
-    private void removePairAndCorrectAllNextKeyDataPairsWithSameHash(IKeyDataPair<Key, Data> keyDataPairToRemove, int indexOfPairToRemove){
+    private void removePairAndCorrectAllNextKeyDataPairsWithSameHash(KeyDataPair<Key, Data> keyDataPairToRemove, int indexOfPairToRemove){
         Key keyOfPairToRemove = keyDataPairToRemove.getKey();
         int hashcodeOfKeyOfPairToRemove = getHashcodeOf(keyOfPairToRemove);
 
@@ -179,7 +179,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         int nextPairIndex = getNextIndex(keyOfRemovedPair, indexOfRemovedPair);
 
         while(!isPlaceEmpty(nextPairIndex)) {
-            IKeyDataPair<Key, Data> currentPair = getHashTableElementOfCorrectTypeAt(nextPairIndex);
+            KeyDataPair<Key, Data> currentPair = getHashTableElementOfCorrectTypeAt(nextPairIndex);
             if(isNormalisedHashOfKeyOfPairEquals(currentPair, normalisedInSizeHashOfRemovedPair)){
                 movePairToNewIndex(currentPair, nextPairIndex, lastPairIndex);
 
@@ -192,12 +192,12 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         }
     }
 
-    private void movePairToNewIndex(IKeyDataPair<Key, Data> pair, int currentIndex, int newIndex){
+    private void movePairToNewIndex(KeyDataPair<Key, Data> pair, int currentIndex, int newIndex){
         setPairIntoHashTable(newIndex, pair);
         setPairIntoHashTable(currentIndex, null);
     }
 
-    private boolean isNormalisedHashOfKeyOfPairEquals(IKeyDataPair<Key, Data> pair, Integer expectedHash){
+    private boolean isNormalisedHashOfKeyOfPairEquals(KeyDataPair<Key, Data> pair, Integer expectedHash){
         Key keyOfPair = pair.getKey();
         int normalizedInSizeHashOfKey = getNormalizedInSizeHashcodeOfKey(keyOfPair);
         return expectedHash.equals(normalizedInSizeHashOfKey);
@@ -215,13 +215,13 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
     private void iterateThroughOldHashTableAndPopulateNew(OpenAddressHashTable<Key, Data> newHashTable){
         //noinspection unchecked
-        for (IKeyDataPair<Key, Data> keyDataPair : (IKeyDataPair<Key, Data>[])getHashTable()) {
+        for (KeyDataPair<Key, Data> keyDataPair : (KeyDataPair<Key, Data>[])getHashTable()) {
             newHashTable.insert(keyDataPair);
         }
     }
 
-    private IKeyDataPair<Key, Data> getHashTableElementOfCorrectTypeAt(int index){
+    private KeyDataPair<Key, Data> getHashTableElementOfCorrectTypeAt(int index){
         //noinspection unchecked
-        return (IKeyDataPair<Key, Data>)getHashTableElementAt(index);
+        return (KeyDataPair<Key, Data>)getHashTableElementAt(index);
     }
 }
