@@ -3,6 +3,7 @@ package Implemitations;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -167,5 +168,64 @@ class LinearOpenAddressHashtableTest {
         assertEquals(string_1, testHashTable.get(randInt_4));
         assertEquals(string_2, testHashTable.get(randInt_5));
         assertEquals(string_3, testHashTable.get(randInt_6));
+    }
+
+    @Test
+    void contains(){
+        LinearOpenAddressHashtable<Integer, String> testHashTable = new LinearOpenAddressHashtable<Integer, String>();
+
+        Set<Integer> keySet = new HashSet<Integer>();
+        while(keySet.size() < 7){
+            keySet.add(random.nextInt());
+        }
+
+        int notKey;
+        do {
+            notKey = random.nextInt();
+        } while (keySet.contains(notKey));
+
+        String string_1 = "Eggs",
+                string_2 = "Butter",
+                string_3 = "Ham",
+                notData = "Milk";
+
+        int i = 0;
+        for(Integer key : keySet){
+            switch (i){
+                case 0:
+                    testHashTable.insert(key, string_1);
+                    break;
+                case 1:
+                    testHashTable.insert(key, string_2);
+                    break;
+                case 2:
+                    testHashTable.insert(key, string_3);
+                    break;
+            }
+            i = (i + 1) % 3;
+        }
+
+        for(Integer key : keySet){
+            assertTrue(testHashTable.containsKey(key));
+        }
+
+        assertTrue(testHashTable.containsData(string_1));
+        assertTrue(testHashTable.containsData(string_2));
+        assertTrue(testHashTable.containsData(string_3));
+
+        assertFalse(testHashTable.containsKey(notKey));
+        assertFalse(testHashTable.containsData(notData));
+
+        Iterator<Integer> keySetIterator = keySet.iterator();
+        Integer keyToRemove = keySetIterator.next();
+
+        testHashTable.remove(keyToRemove);
+
+        assertFalse(testHashTable.containsKey(keyToRemove));
+    }
+
+    @Test
+    void criticalSituations(){
+
     }
 }

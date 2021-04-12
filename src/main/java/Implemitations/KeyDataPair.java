@@ -22,4 +22,8 @@ public class KeyDataPair<Key, Data> implements IKeyDataPair<Key, Data> {
     public boolean isKeyEqualsTo(Key other) {
         return _key.equals(other);
     }
+
+    public boolean isDataEqualsTo(Data other) {
+        return _data.equals(other);
+    }
 }

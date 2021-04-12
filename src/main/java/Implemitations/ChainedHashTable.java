@@ -51,7 +51,7 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
     }
 
     @Override
-    protected IKeyDataPair<Key, Data> getPair(Key key) {
+    protected IKeyDataPair<Key, Data> getPairByKey(Key key) {
         ArrayList<IKeyDataPair<Key, Data>>[] hashTable = getHashTableOfCorrectType();
         int indexInHashTable = getNormalizedInSizeHashcodeOfKey(key);
         ArrayList<IKeyDataPair<Key, Data>> pairListToIterate = hashTable[indexInHashTable];
@@ -60,6 +60,7 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
     }
 
     private IKeyDataPair<Key, Data> iterateThroughPairListAndReturnPairWithKeyEqualsTo(ArrayList<IKeyDataPair<Key, Data>> pairList, Key key){
+        // TODO: вынести алгоритм пробега по pairList в отдельную функцию.
         if(pairList != null){
             for (IKeyDataPair<Key, Data> keyDataPair : pairList) {
                 if(keyDataPair.isKeyEqualsTo(key)){
@@ -67,6 +68,31 @@ public class ChainedHashTable<Key, Data> extends BaseHashTable<Key, Data> {
                 }
             }
         }
+        return null;
+    }
+
+    @Override
+    protected IKeyDataPair<Key, Data> getPairByData(Data data) {
+        //noinspection UnnecessaryLocalVariable
+        IKeyDataPair<Key, Data> foundPair = iterateThroughAllPairListsAndReturnPairWithDataEqualsTo(data);
+        return foundPair;
+    }
+
+    private IKeyDataPair<Key, Data> iterateThroughAllPairListsAndReturnPairWithDataEqualsTo(Data data){
+        ArrayList<IKeyDataPair<Key, Data>>[] hashTable = getHashTableOfCorrectType();
+
+        for(ArrayList<IKeyDataPair<Key, Data>> pairList : hashTable){
+            // TODO: вынести алгоритм пробега по pairList в отдельную функцию.
+            if(pairList != null){
+                for (IKeyDataPair<Key, Data> keyDataPair : pairList) {
+                    if(keyDataPair.isDataEqualsTo(data)){
+                        return keyDataPair;
+                    }
+                }
+            }
+
+        }
+
         return null;
     }
 

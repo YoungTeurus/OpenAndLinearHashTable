@@ -44,7 +44,7 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
 
     // Паттерн "Шаблонный метод": субкласс должен переопределить, как находить новый индекс элемента при коллизии (метод getPair).
     final public Data get(Key key) {
-        IKeyDataPair<Key, Data> pair = getPair(key);
+        IKeyDataPair<Key, Data> pair = getPairByKey(key);
         if (pair != null){
             return pair.getData();
         }
@@ -52,7 +52,19 @@ public abstract class BaseHashTable<Key, Data> implements IHashTable<Key, Data> 
     }
 
     // Метод должен возвращать пару, соответствующую ключу key или null, если такая не была найдена.
-    protected abstract IKeyDataPair<Key, Data> getPair(Key key);
+    protected abstract IKeyDataPair<Key, Data> getPairByKey(Key key);
+    // Метод должен возвращать пару, содержащую данные data или null, если такая не была найдена.
+    protected abstract IKeyDataPair<Key, Data> getPairByData(Data data);
+
+    public boolean containsKey(Key key) {
+        IKeyDataPair<Key, Data> pairWithSetKey = getPairByKey(key);
+        return pairWithSetKey != null;
+    }
+
+    public boolean containsData(Data data) {
+        IKeyDataPair<Key, Data> pairWithSetData = getPairByData(data);
+        return pairWithSetData != null;
+    }
 
     // Метод должен удалять из хеш-таблицы элемент, соответствующий ключу key.
     public abstract void remove(Key key);

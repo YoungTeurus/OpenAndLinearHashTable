@@ -55,6 +55,46 @@ class SpeedTest {
 
         start = System.currentTimeMillis();
         for (int i = 0; i < 100000; i++){
+            assertTrue(linearHashTable.containsKey(i + "abs"));
+        }
+        System.out.println("Проверка на наличие 100000 ключей в хештаблице с линейным пробированием за " + (System.currentTimeMillis() - start));
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < 100000; i++){
+            assertTrue(chainedHashTable.containsKey(i + "abs"));
+        }
+        System.out.println("Проверка на наличие 100000 ключей в хештаблице с цепочками за " + (System.currentTimeMillis() - start));
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < 100000; i++){
+            assertTrue(standartHashTable.containsKey(i + "abs"));
+        }
+        System.out.println("Проверка на наличие 100000 ключей в стандартной хештаблице за " + (System.currentTimeMillis() - start));
+
+        System.out.println();
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++){
+            assertTrue(linearHashTable.containsData(i));
+        }
+        System.out.println("Проверка на наличие 10000 значений в хештаблице с линейным пробированием за " + (System.currentTimeMillis() - start));
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++){
+            assertTrue(chainedHashTable.containsData(i));
+        }
+        System.out.println("Проверка на наличие 10000 значений в хештаблице с цепочками за " + (System.currentTimeMillis() - start));
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++){
+            assertTrue(standartHashTable.containsValue(i));
+        }
+        System.out.println("Проверка на наличие 10000 значений в стандартной хештаблице за " + (System.currentTimeMillis() - start));
+
+        System.out.println();
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < 100000; i++){
             linearHashTable.remove(i + "abs");
         }
         System.out.println("Удаление 100000 из хештаблицы с линейным пробированием за " + (System.currentTimeMillis() - start));

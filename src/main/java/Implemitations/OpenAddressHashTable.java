@@ -46,6 +46,8 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
             // TODO: Если мы вернулись в начальную позицию, настала необходимость расширить хеш-таблицу?
             if (indexInHashTable.equals(currentIndex)){
+                rehash(_size * 2);
+                placePairIntoHashTable(key, indexInHashTable, keyDataPair);
                 return;
             }
         }
@@ -72,12 +74,12 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         }
     }
 
-    protected IKeyDataPair<Key, Data> getPair(Key key){
-        KeyDataPairIndexCombo pairIndexCombo = getPairAndItsIndex(key);
+    protected IKeyDataPair<Key, Data> getPairByKey(Key key){
+        KeyDataPairIndexCombo pairIndexCombo = getPairAndItsIndexByKey(key);
         return pairIndexCombo.keyDataPair;
     }
 
-    private KeyDataPairIndexCombo getPairAndItsIndex(Key key){
+    private KeyDataPairIndexCombo getPairAndItsIndexByKey(Key key){
         KeyDataPairIndexCombo pairIndexCombo = new KeyDataPairIndexCombo();
 
         int indexInHashTable = getNormalizedInSizeHashcodeOfKey(key);
@@ -103,6 +105,27 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         return pairIndexCombo;
     }
 
+    @Override
+    protected IKeyDataPair<Key, Data> getPairByData(Data data) {
+        KeyDataPairIndexCombo pairIndexCombo = getPairAndItsIndexByData(data);
+        return pairIndexCombo.keyDataPair;
+    }
+
+    private KeyDataPairIndexCombo getPairAndItsIndexByData(Data data){
+        KeyDataPairIndexCombo pairIndexCombo = new KeyDataPairIndexCombo();
+
+        for(int index = 0; index < _size; index++){
+            IKeyDataPair<Key, Data> currentPair = getHashTableElementOfCorrectTypeAt(index);
+            if (currentPair != null && currentPair.isDataEqualsTo(data)){
+                pairIndexCombo.keyDataPair = currentPair;
+                pairIndexCombo.indexOfPair = index;
+                break;
+            }
+        }
+
+        return pairIndexCombo;
+    }
+
     // Метод должен возвращать следующий индекс для ключа key, как если бы произошла коллизия на месте collisionIndex и
     // происходит tryCount попытка получить следующий индекс.
     // Передача tryCount позволяет
@@ -112,16 +135,12 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
         return index % _size;
     }
 
-    protected void setLastTryCount(int _lastTryCount){
-        lastTryCount = _lastTryCount;
-    }
-
     protected int getLastTryCount(){
         return lastTryCount;
     }
 
     private void resetLastTryCount(){
-        setLastTryCount(0);
+        lastTryCount = 0;
     }
 
     private void incrementLastTryCount(){
@@ -130,7 +149,7 @@ public abstract class OpenAddressHashTable<Key, Data> extends BaseHashTable<Key,
 
     @Override
     public void remove(Key key) {
-        KeyDataPairIndexCombo keyDataPairToRemoveIndexCombo = getPairAndItsIndex(key);
+        KeyDataPairIndexCombo keyDataPairToRemoveIndexCombo = getPairAndItsIndexByKey(key);
 
         IKeyDataPair<Key, Data> keyDataPairToRemove = keyDataPairToRemoveIndexCombo.keyDataPair;
         int indexOfPairToRemove = keyDataPairToRemoveIndexCombo.indexOfPair;
